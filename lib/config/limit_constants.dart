@@ -1,0 +1,35 @@
+class LimitConstants {
+  static const int groupMessageLoadingChatMessageLength = 25;
+  static const int timeOutSeconds = 50;
+  static const int groupMemberslimit = 500;
+  static const int broadcastMemberslimit = 500;
+  static const int statusDeleteAfterInHours = 24;
+  static const int maxFileSizeAllowedInMB = 60;
+  static const int maxNoOfFilesInMultiSharing = 10;
+  static const int maxNoOfContactsSelectForForward = 7;
+  static const int imageQualityCompress = 50;
+  static const int dpImageQualityCompress = 25;
+  static const int maxAdFailedLoadAttempts = 3;
+  static const bool isAllowCreatingGroups = true;
+  static const bool isAllowCreatingBroadcasts = true;
+  static const bool isAllowCreatingStatus = true;
+  static const bool is24hrsTimeformat = true;
+  static const bool connectWithAdminApp = true;
+  static const bool isPercentProgressShowWhileUploading = true;
+  static const bool isRemovePhoneNumberFromCallingPageWhenOnCall = false;
+  static const bool isCallFeatureTotallyHide = false;
+  static const bool isInterstitialAdShow = false;
+  static const bool isShowDeleteChatOption = false;
+  static const bool isBannerAdShow = false;
+  static const bool isVideoAdShow = false;
+  static const bool isLazyLoadingChat = false;
+  static const bool isSplashOnlySolidColor = false;
+  static const bool isLogoutButtonShowInSettingsPage = true;
+  static const bool isShowNativeTimDate = true;
+  static const bool isVideoQualityCompress = true;
+  static const String feedbackEmail = "";
+  static const String rateAppUrlIos = "";
+  static const String rateAppUrlAndroid = "";
+  static const String defaultCountryCodeNumber = "+91";
+  static const String defaultCountryCodeIso = "IN";
+}
