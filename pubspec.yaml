@@ -1,4 +1,4 @@
-name: chat_360
+name: chat360
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -43,6 +43,8 @@ dependencies:
   google_mobile_ads: ^2.0.1
   provider: ^6.0.3
   sms_autofill: ^2.2.0
+  firebase_core: ^1.22.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,15 @@
-import 'package:chat_360/ui/screens/pick_up/pick_up_screen.dart';
+import 'package:chat360/ui/screens/pick_up/pick_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 import 'services/admob/admob.dart';
+import 'ui/screens/broadcast/add_contact_broadcast.dart';
+import 'ui/screens/broadcast/broadcast_details.dart';
+import 'ui/screens/broadcast/edit_broadcast.dart';
+import 'ui/screens/call/audio.dart';
 import 'ui/screens/home/home.dart';
+import 'ui/screens/initial/initial.dart';
 import 'ui/screens/login/login.dart';
 
 void main() {
@@ -35,7 +40,7 @@ void main() {
         const OverlaySupport.global(
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: LoginPage(),
+            home: InitialPage(),
           ),
         ),
       );

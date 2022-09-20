@@ -1,4 +1,4 @@
-import 'package:chat_360/ui/themes/app_colors.dart';
+import 'package:chat360/ui/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/common_text.dart';

@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chat_360/ui/themes/app_colors.dart';
+import 'package:chat360/ui/themes/app_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../config/app_config.dart';
-import '../../../model/call/call.dart';
+import '../../../data/model/call/call.dart';
 import '../../../services/localization/language_constants.dart';
 import '../../../utility/enum.dart';
 import '../../widgets/cached_image.dart';

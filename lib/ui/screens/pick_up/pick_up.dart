@@ -1,4 +1,4 @@
-import 'package:chat_360/ui/screens/splash/splash.dart';
+import 'package:chat360/ui/screens/splash/splash.dart';
 import 'package:flutter/material.dart';
 
 class PickUpLayout extends StatelessWidget {

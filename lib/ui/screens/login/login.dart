@@ -23,8 +23,15 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool language = false;
+  bool name = false;
+  bool send = false;
   bool check = false;
   bool loading = false;
+  bool resend = false;
+  bool attempt = false;
+  bool codeSend = false;
+  bool actionBar = false;
+  bool verify = false;
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(this.context).size.width;
@@ -179,15 +186,15 @@ class _LoginPageState extends State<LoginPage> {
     //   }
     // }
 
-    if(language == true){
+    if(name == true){
       return nameWidget(w);
     }else if(language == true){
         return sendSmsCode();
-    }else if(check == false){
-      return otpWidget();
     }else if(check == true){
-      verifyingCode();
-    }else if(language == true){
+      return otpWidget();
+    }else if(verify == true){
+      return verifyingCode();
+    }else if(send == false){
       return sendSmsCode();
     }else{
       return nameWidget(w);
@@ -870,124 +877,250 @@ class _LoginPageState extends State<LoginPage> {
             height: 20,
           ),
           // isShowCompletedLoading == true
-          //     ? const SizedBox(
-          //   height: 36,
-          // )
-          //     : Consumer<TimerProvider>(
-          //   builder: (context, timeProvider, _) => timeProvider.wait ==
-          //       true &&
-          //       isCodeSent == true
-          //       ? Padding(
-          //     padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-          //     child: RichText(
-          //         text: TextSpan(
-          //           children: [
-          //             TextSpan(
-          //               text: getTranslated(this.context, 'resendcode'),
-          //               style: const TextStyle(
-          //                   fontSize: 14, color: AppColors.grey),
-          //             ),
-          //             TextSpan(
-          //               text: " 00:${timeProvider.start} ",
-          //               style: const TextStyle(
-          //                   fontSize: 15,
-          //                   color: AppColors.lightGreen,
-          //                   fontWeight: FontWeight.w700),
-          //             ),
-          //             TextSpan(
-          //               text: getTranslated(this.context, 'seconds'),
-          //               style: const TextStyle(
-          //                   fontSize: 14, color: AppColors.grey),
-          //             ),
-          //           ],
-          //         )),
-          //   )
-          //       : timeProvider.isActionBarShow == false
-          //       ? const SizedBox(
-          //     height: 35,
-          //   )
-          //       : Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       InkWell(
-          //           onTap: () {
-          //             final timerProvider =
-          //             Provider.of<TimerProvider>(context,
-          //                 listen: false);
-          //             timerProvider.resetTimer();
-          //             unawaited(Navigator.pushReplacement(
-          //                 this.context,
-          //                 MaterialPageRoute(
-          //                     builder: (newContext) => HomePage(
-          //                       currentUserNo: null,
-          //                       isSecuritySetupDone: false,
-          //                       prefs: widget.prefs,
-          //                     ))));
-          //           },
-          //           child: Container(
-          //             margin: const EdgeInsets.fromLTRB(
-          //                 23, 12, 10, 10),
-          //             child: Row(
-          //               mainAxisAlignment:
-          //               MainAxisAlignment.center,
-          //               mainAxisSize: MainAxisSize.min,
-          //               children: [
-          //                 const Icon(
-          //                   Icons.arrow_back_ios,
-          //                   color: AppColors.grey,
-          //                   size: 16,
-          //                 ),
-          //                 Text(
-          //                   getTranslated(this.context, 'back'),
-          //                   style: const TextStyle(
-          //                       fontWeight: FontWeight.w500,
-          //                       color: AppColors.grey,
-          //                       fontSize: 13),
-          //                 ),
-          //               ],
-          //             ),
-          //           )),
-          //       attempt > 1
-          //           ? const SizedBox(
-          //         height: 0,
-          //       )
-          //           : InkWell(
-          //           onTap: () {
-          //             setState(() {
-          //               attempt++;
-          //
-          //               timeProvider.resetTimer();
-          //               isCodeSent = false;
-          //               currentStatus = LoginStatus
-          //                   .sendingSmsCode.index;
-          //             });
-          //             verifyPhoneNumber();
-          //           },
-          //           child: Container(
-          //             margin: const EdgeInsets.fromLTRB(
-          //                 10, 4, 23, 4),
-          //             child: Row(
-          //               mainAxisAlignment:
-          //               MainAxisAlignment.center,
-          //               mainAxisSize: MainAxisSize.min,
-          //               children: [
-          //                 const Icon(
-          //                     Icons.restart_alt_outlined,
-          //                     color: AppColors.lightGreen),
-          //                 Text(
-          //                   ' ${getTranslated(this.context, 'resend')}',
-          //                   style: const TextStyle(
-          //                       fontSize: 13,
-          //                       color: AppColors.lightGreen,
-          //                       fontWeight:
-          //                       FontWeight.bold),
-          //                 ),
-          //               ],
-          //             ),
-          //           ))
-          //     ],
-          //   ),
-          // ),
+      resend == true
+              ? const SizedBox(
+            height: 36,
+          )
+              :
+            // isCodeSent == true
+            codeSend == false
+            ? Padding(
+          padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+          child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    // text: getTranslated(this.context, 'resendcode'),
+                    text: "Resend Code",
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.grey),
+                  ),
+                  TextSpan(
+                    // text: " 00:${timeProvider.start} ",
+                    text: "00:",
+                    style: const TextStyle(
+                        fontSize: 15,
+                        color: AppColors.lightGreen,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(
+                    // text: getTranslated(this.context, 'seconds'),
+                    text: "Seconds",
+                    style: const TextStyle(
+                        fontSize: 14, color: AppColors.grey),
+                  ),
+                ],
+              )),
+        )
+            // : timeProvider.isActionBarShow == false
+            : actionBar == true
+            ? const SizedBox(
+          height: 35,
+        )
+            : Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+                onTap: () {
+                  // final timerProvider =
+                  // Provider.of<TimerProvider>(context,
+                  //     listen: false);
+                  // timerProvider.resetTimer();
+                  // unawaited(Navigator.pushReplacement(
+                  //     this.context,
+                  //     MaterialPageRoute(
+                  //         builder: (newContext) => HomePage(
+                  //           currentUserNo: null,
+                  //           isSecuritySetupDone: false,
+                  //           prefs: widget.prefs,
+                  //         ))));
+                },
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(
+                      23, 12, 10, 10),
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.arrow_back_ios,
+                        color: AppColors.grey,
+                        size: 16,
+                      ),
+                      CommonText(
+                          text: "Back",
+                          // getTranslated(this.context, 'back'),
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.grey,
+                          fontSize: 13
+                      ),
+                    ],
+                  ),
+                )),
+            // attempt > 1
+            attempt == true
+                ? const SizedBox(
+              height: 0,
+            )
+                : InkWell(
+                onTap: () {
+                  // setState(() {
+                  //   attempt++;
+                  //
+                  //   timeProvider.resetTimer();
+                  //   isCodeSent = false;
+                  //   currentStatus = LoginStatus
+                  //       .sendingSmsCode.index;
+                  // });
+                  // verifyPhoneNumber();
+                },
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(
+                      10, 4, 23, 4),
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                          Icons.restart_alt_outlined,
+                          color: AppColors.lightGreen),
+                      CommonText(
+                          text: "Resend",
+                          // ' ${getTranslated(this.context, 'resend')}',
+                          fontSize: 13,
+                          fontColor: AppColors.lightGreen,
+                          fontWeight:
+                          FontWeight.bold
+                      ),
+                    ],
+                  ),
+                ))
+          ],
+        ),
+
+
+
+      // Consumer<TimerProvider>(
+      //       builder: (context, timeProvider, _) => timeProvider.wait ==
+      //           true &&
+      //           // isCodeSent == true
+      //           codeSend == true
+      //           ? Padding(
+      //         padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+      //         child: RichText(
+      //             text: TextSpan(
+      //               children: [
+      //                 TextSpan(
+      //                   // text: getTranslated(this.context, 'resendcode'),
+      //                   text: "Resend Code",
+      //                   style: const TextStyle(
+      //                       fontSize: 14, color: AppColors.grey),
+      //                 ),
+      //                 TextSpan(
+      //                   text: " 00:${timeProvider.start} ",
+      //                   style: const TextStyle(
+      //                       fontSize: 15,
+      //                       color: AppColors.lightGreen,
+      //                       fontWeight: FontWeight.w700),
+      //                 ),
+      //                 TextSpan(
+      //                   // text: getTranslated(this.context, 'seconds'),
+      //                   text: "Seconds",
+      //                   style: const TextStyle(
+      //                       fontSize: 14, color: AppColors.grey),
+      //                 ),
+      //               ],
+      //             )),
+      //       )
+      //           : timeProvider.isActionBarShow == false
+      //           ? const SizedBox(
+      //         height: 35,
+      //       )
+      //           : Row(
+      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //         children: [
+      //           InkWell(
+      //               onTap: () {
+      //                 // final timerProvider =
+      //                 // Provider.of<TimerProvider>(context,
+      //                 //     listen: false);
+      //                 // timerProvider.resetTimer();
+      //                 // unawaited(Navigator.pushReplacement(
+      //                 //     this.context,
+      //                 //     MaterialPageRoute(
+      //                 //         builder: (newContext) => HomePage(
+      //                 //           currentUserNo: null,
+      //                 //           isSecuritySetupDone: false,
+      //                 //           prefs: widget.prefs,
+      //                 //         ))));
+      //               },
+      //               child: Container(
+      //                 margin: const EdgeInsets.fromLTRB(
+      //                     23, 12, 10, 10),
+      //                 child: Row(
+      //                   mainAxisAlignment:
+      //                   MainAxisAlignment.center,
+      //                   mainAxisSize: MainAxisSize.min,
+      //                   children: [
+      //                     const Icon(
+      //                       Icons.arrow_back_ios,
+      //                       color: AppColors.grey,
+      //                       size: 16,
+      //                     ),
+      //                     CommonText(
+      //                       text: "Back",
+      //                       // getTranslated(this.context, 'back'),
+      //                           fontWeight: FontWeight.w500,
+      //                           fontColor: AppColors.grey,
+      //                           fontSize: 13
+      //                     ),
+      //                   ],
+      //                 ),
+      //               )),
+      //           // attempt > 1
+      // attempt == false
+      //               ? const SizedBox(
+      //             height: 0,
+      //           )
+      //               : InkWell(
+      //               onTap: () {
+      //                 // setState(() {
+      //                 //   attempt++;
+      //                 //
+      //                 //   timeProvider.resetTimer();
+      //                 //   isCodeSent = false;
+      //                 //   currentStatus = LoginStatus
+      //                 //       .sendingSmsCode.index;
+      //                 // });
+      //                 // verifyPhoneNumber();
+      //               },
+      //               child: Container(
+      //                 margin: const EdgeInsets.fromLTRB(
+      //                     10, 4, 23, 4),
+      //                 child: Row(
+      //                   mainAxisAlignment:
+      //                   MainAxisAlignment.center,
+      //                   mainAxisSize: MainAxisSize.min,
+      //                   children: [
+      //                     const Icon(
+      //                         Icons.restart_alt_outlined,
+      //                         color: AppColors.lightGreen),
+      //                     CommonText(
+      //                       text: "Resend",
+      //                       // ' ${getTranslated(this.context, 'resend')}',
+      //                           fontSize: 13,
+      //                           fontColor: AppColors.lightGreen,
+      //                           fontWeight:
+      //                           FontWeight.bold
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ))
+      //         ],
+      //       ),
+      //     ),
 
           const SizedBox(
             height: 27,
@@ -1016,100 +1149,15 @@ class _LoginPageState extends State<LoginPage> {
       margin: EdgeInsets.fromLTRB(
           15, MediaQuery.of(context).size.height / 2.50, 16, 0),
       child: Column(
-        children: <Widget>[
+        children:[
           const SizedBox(
             height: 13,
           ),
-
-          // Container(
-          //   margin: EdgeInsets.all(25),
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(1.0),
-          //     child: PinFieldAutoFill(
-          //       codeLength: 6,
-          //       decoration: UnderlineDecoration(
-          //         bgColorBuilder:
-          //             FixedColorBuilder(AppColors.grey.withOpacity(0.1)),
-          //         textStyle: TextStyle(
-          //             fontSize: 22,
-          //             color: AppColors.chattingBlack,
-          //             fontWeight: FontWeight.bold),
-          //         colorBuilder:
-          //             FixedColorBuilder(AppColors.grey.withOpacity(0.1)),
-          //       ),
-          //       currentCode: _code,
-          //       onCodeSubmitted: (code) {
-          //         setState(() {
-          //           _code = code;
-          //         });
-          //         if (code.length == 6) {
-          //           setState(() {
-          //             isSendingOTP = true;
-          //           });
-          //           handleSignIn();
-          //         } else {
-          //           FiberChatSettings.toast(getTranslated(this.context, 'correctotp'));
-          //         }
-          //       },
-          //       onCodeChanged: (code) {
-          //         if (code!.length == 6) {
-          //           FocusScope.of(this.context).requestFocus(FocusNode());
-          //           setState(() {
-          //             _code = code;
-          //           });
-          //         }
-          //       },
-          //     ),
-          //   ),
-          // ),
-
-          // Padding(
-          //   padding: EdgeInsets.all(17),
-          //   child: Text(
-          //     isverficationsent == false
-          //         ? getTranslated(this.context, 'sending_code') +
-          //             ' $phoneCode-${_phoneNo.text}'
-          //         : getTranslated(this.context, 'enter_verfcode') +
-          //             ' $phoneCode-${_phoneNo.text}',
-          //     textAlign: TextAlign.center,
-          //     style: TextStyle(height: 1.5),
-
-          //     // style: TextStyle(color: Mycolors.black),
-          //   ),
-          // ),
-          // isSendingOTP == true
-          //     ?
           const Center(
             child: CircularProgressIndicator(
                 valueColor:
                 AlwaysStoppedAnimation<Color>(AppColors.lightGreen)),
           ),
-          // : Padding(
-          //     padding: EdgeInsets.fromLTRB(17, 22, 17, 5),
-          //     child: CommonSimpleButton(
-          //       height: 57,
-          //       buttonColor: AppConfig.designType == ThemeType.whatsapp
-          //           ? AppColors.lightGreen
-          //           : AppColors.lightGreen,
-          //       buttonText: getTranslated(this.context, 'verify_otp'),
-          //       onPressed: () {
-          //         if (_code.length == 6) {
-          //           setState(() {
-          //             isVerifyingCode = true;
-          //           });
-          //           handleSignIn();
-          //         } else
-          //           FiberChatSettings.toast(
-          //               getTranslated(this.context, 'correctotp'));
-          //       },
-          //     ),
-          //   ),
-          // isSendingOTP == true
-          //     ? SizedBox(
-          //         height: 20,
-          //       )
-          //     :
-
           InkWell(
             onTap: () {
               setState(() {

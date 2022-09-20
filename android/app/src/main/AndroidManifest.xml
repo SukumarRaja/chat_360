@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chat_360">
+    package="com.limitless.chat">
    <application
-        android:label="chat_360"
+        android:label="chat360"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

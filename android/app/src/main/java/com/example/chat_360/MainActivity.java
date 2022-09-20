@@ -1,4 +1,4 @@
-package com.example.chat_360;
+package com.limitless.chat;
 
 import io.flutter.embedding.android.FlutterActivity;
 

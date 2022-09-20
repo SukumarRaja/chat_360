@@ -1,4 +1,4 @@
-# chat_360
+# chat360
 
 A new Flutter project.
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "70209151906",
+    "project_id": "chat-360-e7621",
+    "storage_bucket": "chat-360-e7621.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:70209151906:android:589cb727b97ca6ef7948fb",
+        "android_client_info": {
+          "package_name": "com.limitless.chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "70209151906-fu9gp05f0s3eeol2df1pri8ka54sa64e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUFqkuCWs7u4dY0Ww10NoNJgDXIjaEt_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "70209151906-fu9gp05f0s3eeol2df1pri8ka54sa64e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

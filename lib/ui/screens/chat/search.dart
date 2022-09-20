@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:chat_360/ui/themes/app_colors.dart';
+import 'package:chat360/ui/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../../config/limit_constants.dart';
