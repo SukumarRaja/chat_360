@@ -1,4 +1,5 @@
 import 'package:chat360/ui/screens/pick_up/pick_up_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -12,7 +13,7 @@ import 'ui/screens/home/home.dart';
 import 'ui/screens/initial/initial.dart';
 import 'ui/screens/login/login.dart';
 
-void main() {
+void main() async{
 
   // if (AppConfig.designType == ThemeType.messenger) {
   //   SystemChrome.setSystemUIOverlayStyle(
@@ -23,6 +24,7 @@ void main() {
   // }
   WidgetsFlutterBinding.ensureInitialized();
   AdMobService.initialize();
+  await Firebase.initializeApp();
 
   // if (LimitConstants.isBannerAdShow == true ||
   //     LimitConstants.isInterstitialAdShow == true ||

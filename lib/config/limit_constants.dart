@@ -1,6 +1,6 @@
 class LimitConstants {
   static const int groupMessageLoadingChatMessageLength = 25;
-  static const int timeOutSeconds = 50;
+  static const int timeOutSeconds = 120;
   static const int groupMemberslimit = 500;
   static const int broadcastMemberslimit = 500;
   static const int statusDeleteAfterInHours = 24;

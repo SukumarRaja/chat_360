@@ -1,3 +1,4 @@
+import 'package:chat360/ui/screens/login/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,8 @@ import '../../../config/database_keys.dart';
 import '../../../data/model/broadcast/broadcast.dart';
 import '../../../data/model/group/group.dart';
 import '../../../provider/chat_provider.dart';
+import '../../../provider/observer.dart';
+import '../../../provider/timer.dart';
 import '../../../provider/user.dart';
 import '../../../services/broadcast/broadcast.dart';
 import '../../../services/firestore_group/group.dart';
@@ -49,7 +52,7 @@ class _InitialPageState extends State<InitialPage> {
         future: initialization,
         builder: (context, snapShot) {
           print("snapshot error ${snapShot.hasError}");
-          if (snapShot.hasError == false) {
+          if (snapShot.hasError) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               home: SplashScreen(),
@@ -62,19 +65,19 @@ class _InitialPageState extends State<InitialPage> {
               builder: (context, AsyncSnapshot<SharedPreferences> snapshot) {
                 print("data state ${snapShot.hasData}");
 
-                if (snapShot.hasData == false) {
+                if (snapShot.hasData) {
                   print("true");
                   return MultiProvider(
                     providers: [
                       // ChangeNotifierProvider(
                       //     create: (_) => BroadCastChatProvider()),
                       // ChangeNotifierProvider(create: (_) => StatusProvider()),
-                      // ChangeNotifierProvider(create: (_) => TimerProvider()),
+                      ChangeNotifierProvider(create: (_) => TimerProvider()),
                       // ChangeNotifierProvider(
                       //     create: (_) => GroupChatProvider()),
                       ChangeNotifierProvider(create: (_) => ChatProvider()),
                       ChangeNotifierProvider(create: (_) => UserProvider()),
-                      // ChangeNotifierProvider(create: (_) => ObserverProvider()),
+                      ChangeNotifierProvider(create: (_) => ObserverProvider()),
                       // ChangeNotifierProvider(
                       //     create: (_) => CurrentChatProvider()),
                       // ChangeNotifierProvider(
@@ -115,25 +118,26 @@ class _InitialPageState extends State<InitialPage> {
                           title: AppConfig.appName,
                           debugShowCheckedModeBanner: false,
 
-                          home: HomePage(
-                            // prefs: snapshot.data!,
-                            // currentUserNo:
-                            // snapshot.data!.getString(DatabaseKeys.phone),
-                            // isSecuritySetupDone: snapshot.data!.getString(
-                            //     DatabaseKeys.isSecuritySetupDone) ==
-                            //     null
-                            //     ? false
-                            //     : ((snapshot.data!
-                            //     .getString(DatabaseKeys.phone) ==
-                            //     null)
-                            //     ? false
-                            //     : (snapshot.data!.getString(DatabaseKeys
-                            //     .isSecuritySetupDone) ==
-                            //     snapshot.data!
-                            //         .getString(DatabaseKeys.phone))
-                            //     ? true
-                            //     : false),
-                          ),
+                          // home: HomePage(
+                          //   // prefs: snapshot.data!,
+                          //   // currentUserNo:
+                          //   // snapshot.data!.getString(DatabaseKeys.phone),
+                          //   // isSecuritySetupDone: snapshot.data!.getString(
+                          //   //     DatabaseKeys.isSecuritySetupDone) ==
+                          //   //     null
+                          //   //     ? false
+                          //   //     : ((snapshot.data!
+                          //   //     .getString(DatabaseKeys.phone) ==
+                          //   //     null)
+                          //   //     ? false
+                          //   //     : (snapshot.data!.getString(DatabaseKeys
+                          //   //     .isSecuritySetupDone) ==
+                          //   //     snapshot.data!
+                          //   //         .getString(DatabaseKeys.phone))
+                          //   //     ? true
+                          //   //     : false),
+                          // ),
+                          home: LoginPage(),
                           locale: myLocale,
                           // supportedLocales: supportedLocale,
                           localizationsDelegates: [
