@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,14 +36,14 @@ class LoginPage extends StatefulWidget {
       this.isBlockNewLogins,
       this.isaccountapprovalbyadminneeded,
       this.accountApprovalMessage,
-      this.prefs,
+      required this.prefs,
       this.isSecuritySetupDone})
       : super(key: key);
   final bool? isBlockNewLogins;
   final bool? isaccountapprovalbyadminneeded;
   final bool? isSecuritySetupDone;
   final String? accountApprovalMessage;
-  final SharedPreferences? prefs;
+  final SharedPreferences prefs;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -67,8 +68,7 @@ class _LoginPageState extends State<LoginPage>
   bool isVerifyingCode = false;
 
 
-
-  final storage = const FlutterSecureStorage();
+  static const storage = FlutterSecureStorage();
 
   Future<void> verifyPhoneNumber() async {
     debugPrint("verify phone init");
@@ -154,7 +154,7 @@ class _LoginPageState extends State<LoginPage>
     });
     var phone = (phoneCode! + phoneNo.text).trim();
 
-    try {
+
       AuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId!, smsCode: code);
       print("entered code is $code");
@@ -172,9 +172,7 @@ class _LoginPageState extends State<LoginPage>
             .where(DatabaseKeys.id, isEqualTo: firebaseUser.user!.uid)
             .get();
         final List documents = result.docs;
-        print("firestore result is ${result.docs[0].id}");
         print("firestore result is ${result}");
-        print("firestore result is ${result.docs[0].id}");
         final pair = await const e2ee.X25519().generateKeyPair();
 
         if (documents.isEmpty) {
@@ -192,7 +190,7 @@ class _LoginPageState extends State<LoginPage>
             DatabaseKeys.nickName: name.text.trim(),
             DatabaseKeys.photoUrl: firebaseUser.user!.photoURL ?? '',
             DatabaseKeys.id: firebaseUser.user!.uid,
-            DatabaseKeys.phone: phoneNo,
+            DatabaseKeys.phone: phoneNo.text,
             DatabaseKeys.phoneRaw: phoneNo.text,
             DatabaseKeys.authenticationType: AuthenticationType.passcode.index,
             DatabaseKeys.aboutMe: "",
@@ -217,7 +215,10 @@ class _LoginPageState extends State<LoginPage>
             DatabaseKeys.currentDeviceId: deviceId,
             DatabaseKeys.phoneNumberVariants: phoneNumberVariantsList(
                 countryCode: phoneCode, phoneNumber: phoneNo.text)
-          }, SetOptions(merge: true));
+          }, SetOptions(merge: true)).then(
+                  (value) => log("User Created Successfully!"),
+                  onError: (e) => log("Error Creating User: $e"));
+
           currentUser = firebaseUser.user;
 
           await FirebaseFirestore.instance
@@ -240,7 +241,9 @@ class _LoginPageState extends State<LoginPage>
               .doc(phoneCode)
               .set({
             DatabaseKeys.totalUsers: FieldValue.increment(1),
-          }, SetOptions(merge: true));
+          }, SetOptions(merge: true)).then(
+                  (value) => log("Dashboard Created Successfully!"),
+              onError: (e) => log("Error Creating Dashboard: $e"));
 
           await FirebaseFirestore.instance
               .collection(DatabasePath.fireStoreCollectionNotification)
@@ -267,20 +270,21 @@ class _LoginPageState extends State<LoginPage>
                 DatabaseKeys.notificationTitle: 'New User Joined',
                 DatabaseKeys.notificationImageUrl: null,
                 DatabaseKeys.notificationLastUpdate: DateTime.now(),
-                DatabaseKeys.notificationAuthor:
-                    '${currentUser!.uid} userapp',
+                DatabaseKeys.notificationAuthor: '${currentUser!.uid} userapp',
               }
             ])
-          });
+          }).then(
+                  (value) => log("Notification Created Successfully!"),
+              onError: (e) => log("Error Creating Notification: $e"));
 
           // Write data to local
-          await widget.prefs!.setString(DatabaseKeys.id, currentUser!.uid);
-          await widget.prefs!
+          await widget.prefs.setString(DatabaseKeys.id, currentUser!.uid);
+          await widget.prefs
               .setString(DatabaseKeys.nickName, name.text.trim());
-          await widget.prefs!
+          await widget.prefs
               .setString(DatabaseKeys.photoUrl, currentUser!.photoURL ?? '');
-          await widget.prefs!.setString(DatabaseKeys.phone, phone);
-          await widget.prefs!.setString(DatabaseKeys.countryCode, phoneCode!);
+          await widget.prefs.setString(DatabaseKeys.phone, phone);
+          await widget.prefs.setString(DatabaseKeys.countryCode, phoneCode!);
           String? fcmToken = await FirebaseMessaging.instance.getToken();
 
           await FirebaseFirestore.instance
@@ -288,22 +292,23 @@ class _LoginPageState extends State<LoginPage>
               .doc(phone)
               .set({
             DatabaseKeys.notificationTokens: [fcmToken]
-          }, SetOptions(merge: true));
-          await (widget.prefs!.setBool(DatabaseKeys.isTokenGenerated, true));
+          }, SetOptions(merge: true)).then(
+                  (value) => log("FCM Token Created Successfully!"),
+              onError: (e) => log("Error Creating FCM Token: $e"));
+          await (widget.prefs.setBool(DatabaseKeys.isTokenGenerated, true));
 
           await (Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (newContext) => const HomePage(
-                      // currentUserNo: phoneNo,
-                      // isSecuritySetupDone: true,
-                      // prefs: widget.prefs,
+                  builder: (newContext) =>  HomePage(
+                      currentUserNo: phone,
+                      isSecuritySetupDone: true,
+                      prefs: widget.prefs,
                       ))));
-          await widget.prefs!
+          await widget.prefs
               .setString(DatabaseKeys.isSecuritySetupDone, phone);
           await subscribeToNotification(documents[0][DatabaseKeys.phone], true);
-        }
-        else {
+        } else {
           await storage.write(
               key: DatabaseKeys.privateKey,
               value: documents[0][DatabaseKeys.privateKey]);
@@ -365,29 +370,31 @@ class _LoginPageState extends State<LoginPage>
                                     .data()![DatabaseKeys.phoneRaw]),
                         DatabaseKeys.notificationTokens: [fcmToken],
                       },
-              );
+              ).then(
+                  (value) => log("User Updated Successfully!"),
+              onError: (e) => log("Error Updating User Details $e"));
           // Write data to local
-          await widget.prefs!
+          await widget.prefs
               .setString(DatabaseKeys.id, documents[0][DatabaseKeys.id]);
-          await widget.prefs!
+          await widget.prefs
               .setString(DatabaseKeys.nickName, name.text.trim());
-          await widget.prefs!.setString(
+          await widget.prefs.setString(
               DatabaseKeys.photoUrl, documents[0][DatabaseKeys.photoUrl] ?? '');
-          await widget.prefs!.setString(
+          await widget.prefs.setString(
               DatabaseKeys.aboutMe, documents[0][DatabaseKeys.aboutMe] ?? '');
-          await widget.prefs!
+          await widget.prefs
               .setString(DatabaseKeys.phone, documents[0][DatabaseKeys.phone]);
 
           if (widget.isSecuritySetupDone == false) {
             await (Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (newContext) => const HomePage(
-                          // currentUserNo: phoneNo,
-                          // isSecuritySetupDone: true,
-                          // prefs: widget.prefs,
+                    builder: (newContext) =>  HomePage(
+                        currentUserNo: phone,
+                        isSecuritySetupDone: true,
+                        prefs: widget.prefs,
                         ))));
-            await widget.prefs!
+            await widget.prefs
                 .setString(DatabaseKeys.isSecuritySetupDone, phone);
             await subscribeToNotification(phone, false);
           } else {
@@ -399,35 +406,13 @@ class _LoginPageState extends State<LoginPage>
                 documents[0][DatabaseKeys.phone], false);
           }
         }
-      }
-      else {
+      } else {
         // FiberChatSettings.toast(getTranslated(context, 'failedlogin'));
         FiberSettings.toast(message: "Failed to Log In");
       }
     }
-    catch (e) {
-      setState(() {
-        if (currentPinAttempts >= 4) {
-          currentStatus = LoginStatus.failure.index;
-          // _phoneNo.clear();
-          // _code = '';
-          isCodeSent = false;
-        }
 
-        isShowCompletedLoading = false;
-        isVerifyingCode = false;
-        currentPinAttempts++;
-      });
-      if (e.toString().contains('invalid') ||
-          e.toString().contains('code') ||
-          e.toString().contains('verification')) {
-        // FiberSettings.toast(getTranslated(context, 'makesureotp')
-        FiberSettings.toast(
-            message:
-                "Make sure your Phone Number/OTP Code is correct and try again later");
-      }
-    }
-  }
+
 
   subscribeToNotification(String currentUserNo, bool isFreshNewAccount) async {
     await FirebaseMessaging.instance
@@ -897,7 +882,7 @@ class _LoginPageState extends State<LoginPage>
       margin: EdgeInsets.fromLTRB(
           15, MediaQuery.of(context).size.height / 2.50, 16, 0),
       child: Column(
-        children:  [
+        children: [
           const SizedBox(
             height: 13,
           ),
@@ -1048,7 +1033,7 @@ class _LoginPageState extends State<LoginPage>
                       ? Padding(
                           padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                           child: RichText(
-                              text:  TextSpan(
+                              text: TextSpan(
                             children: [
                               const TextSpan(
                                 // text: getTranslated(this.context, 'resendcode'),

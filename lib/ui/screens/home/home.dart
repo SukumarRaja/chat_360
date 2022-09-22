@@ -1,9 +1,27 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:chat360/ui/themes/app_colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info/device_info.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:provider/provider.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config/app_config.dart';
+import '../../../config/database_keys.dart';
+import '../../../config/database_path.dart';
+import '../../../provider/available_contact.dart';
+import '../../../provider/current_chat.dart';
+import '../../../provider/status.dart';
+import '../../../services/notification/background_msg_handler.dart';
 import '../../../translations/language.dart';
 import '../../../utility/enum.dart';
+import '../../../utility/settings.dart';
 import '../../widgets/common_text.dart';
 import '../call/call_history.dart';
 import '../chat/recent.dart';
@@ -13,7 +31,16 @@ import '../pick_up/pick_up.dart';
 import '../status/status.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage(
+      {Key? key,
+      this.currentUserNo,
+      required this.isSecuritySetupDone,
+      required this.prefs})
+      : super(key: key);
+
+  final String? currentUserNo;
+  final bool isSecuritySetupDone;
+  final SharedPreferences prefs;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -24,6 +51,7 @@ class _HomePageState extends State<HomePage>
         WidgetsBindingObserver,
         AutomaticKeepAliveClientMixin,
         TickerProviderStateMixin {
+
   DateTime? currentBackPressTime = DateTime.now();
   TabController? controllerIfCallAllowed;
   TabController? controllerIfCallNotAllowed;
@@ -32,17 +60,79 @@ class _HomePageState extends State<HomePage>
     DateTime now = DateTime.now();
     if (now.difference(currentBackPressTime!) > const Duration(seconds: 3)) {
       currentBackPressTime = now;
-      // FiberChatSettings.toast('Double Tap To Go Back');
+      FiberSettings.toast(message: 'Double Tap To Go Back');
       return Future.value(false);
     } else {
       // if (!isAuthenticating) setLastSeen();
       return Future.value(true);
     }
   }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setIsActive();
+    } else {
+      // setLastSeen();
+    }
+  }
+  void setIsActive() async {
+    if (widget.currentUserNo != null && widget.currentUserNo != null) {
+      await FirebaseFirestore.instance
+          .collection(DatabasePath.fireStoreCollectionUsers)
+          .doc(widget.currentUserNo)
+          .update(
+        {
+          DatabaseKeys.lastSeen: true,
+          DatabaseKeys.lastTimeOnline: DateTime.now().millisecondsSinceEpoch
+        },
+      );
+    }
+  }
 
+  void setLastSeen() async {
+    if (widget.currentUserNo != null && widget.currentUserNo != null) {
+      await FirebaseFirestore.instance
+          .collection(DatabasePath.fireStoreCollectionUsers)
+          .doc(widget.currentUserNo)
+          .update(
+        {DatabaseKeys.lastSeen: DateTime.now().millisecondsSinceEpoch},
+      );
+    }
+  }
+
+  final TextEditingController filter = TextEditingController();
+  bool isAuthenticating = false;
+
+  StreamSubscription? spokenSubscription;
+  List<StreamSubscription> unreadSubscriptions =
+  List.from(<StreamSubscription>[]);
+  late StreamSubscription intentDataStreamSubscription;
+  List<SharedMediaFile>? sharedFiles = [];
+  String? sharedText;
+
+
+
+
+  List<StreamController> controllers = List.from(<StreamController>[]);
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  String? deviceId;
+  var mapDeviceInfo = {};
+  String? maintenanceMessage;
+  bool isNotAllowEmulator = false;
+  bool? isBlockNewLogins = false;
+  bool? biometricEnabled = false;
+  bool? isApprovalNeededByAdminForNewUser = false;
+  String? accountApprovalMessage = "Account Approved";
+  String? accountStatus;
+  String? accountActionMessage;
+  String? userPhotoUrl;
+  String? userFullName;
+  String? s;
+  String? a;
   @override
   void initState() {
-    // listenToSharingIntent();
+    listenToSharingIntent();
     // listenToNotification();
     // getSignedInUserOrRedirect();
     // setDeviceInfo();
@@ -53,46 +143,260 @@ class _HomePageState extends State<HomePage>
     controllerIfCallNotAllowed = TabController(length: 3, vsync: this);
     controllerIfCallNotAllowed!.index = 1;
 
-    // FiberChatSettings.internetLookUp();
+    FiberSettings.internetLookUp();
     WidgetsBinding.instance.addObserver(this);
 
-    // LocalAuthentication().canCheckBiometrics.then((res) {
-    //   if (res) biometricEnabled = true;
-    // });
+    LocalAuthentication().canCheckBiometrics.then((res) {
+      if (res) biometricEnabled = true;
+    });
     // getModel();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       controllerIfCallAllowed!.addListener(() {
         if (controllerIfCallAllowed!.index == 2) {
-          // final statusProvider =
-          // Provider.of<StatusProvider>(context, listen: false);
-          // final contactsProvider =
-          // Provider.of<AvailableContactsProvider>(context, listen: false);
-          // statusProvider.searchContactStatus(widget.currentUserNo!,
-          //     contactsProvider.joinedUserPhoneStringAsInServer);
+          final statusProvider =
+          Provider.of<StatusProvider>(context, listen: false);
+          final contactsProvider =
+          Provider.of<AvailableContactsProvider>(context, listen: false);
+          statusProvider.searchContactStatus(widget.currentUserNo!,
+              contactsProvider.joinedUserPhoneStringAsInServer);
         }
       });
       controllerIfCallNotAllowed!.addListener(() {
         if (controllerIfCallNotAllowed!.index == 2) {
-          // final statusProvider =
-          // Provider.of<StatusProvider>(context, listen: false);
-          // final contactsProvider =
-          // Provider.of<AvailableContactsProvider>(context, listen: false);
-          // statusProvider.searchContactStatus(widget.currentUserNo!,
-          //     contactsProvider.joinedUserPhoneStringAsInServer);
+          final statusProvider =
+          Provider.of<StatusProvider>(context, listen: false);
+          final contactsProvider =
+          Provider.of<AvailableContactsProvider>(context, listen: false);
+          statusProvider.searchContactStatus(widget.currentUserNo!,
+              contactsProvider.joinedUserPhoneStringAsInServer);
         }
       });
     });
     super.initState();
   }
+  listenToSharingIntent() {
+    // For sharing images coming from outside the app while the app is in the memory
+    intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream().listen(
+            (List<SharedMediaFile> value) {
+          setState(() {
+            sharedFiles = value;
+          });
+        }, onError: (err) {
+      print("getIntentDataStream error: $err");
+    });
+
+    // For sharing images coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      setState(() {
+        sharedFiles = value;
+      });
+    });
+
+    // For sharing or opening urls/text coming from outside the app while the app is in the memory
+    intentDataStreamSubscription =
+        ReceiveSharingIntent.getTextStream().listen((String value) {
+          setState(() {
+            sharedText = value;
+          });
+        }, onError: (err) {
+          print("getLinkStream error: $err");
+        });
+
+    // For sharing or opening urls/text coming from outside the app while the app is closed
+    ReceiveSharingIntent.getInitialText().then((String? value) {
+      setState(() {
+        sharedText = value;
+      });
+    });
+  }
+  void listenToNotification() async {
+    //FOR ANDROID  background notification is handled here whereas for iOS it is handled at the very top of main.dart ------
+    if (Platform.isAndroid) {
+      FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandlerAndroid);
+    }
+    //ANDROID & iOS  OnMessage callback
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      // ignore: unnecessary_null_comparison
+      flutterLocalNotificationsPlugin.cancelAll();
+
+      if (message.data['title'] != 'Call Ended' &&
+          message.data['title'] != 'Missed Call' &&
+          message.data['title'] != 'You have new message(s)' &&
+          message.data['title'] != 'Incoming Video Call...' &&
+          message.data['title'] != 'Incoming Audio Call...' &&
+          message.data['title'] != 'Incoming Call ended' &&
+          message.data['title'] != 'New message in Group') {
+        FiberSettings.toast(
+            // getTranslated(this.context, 'newnotifications')
+          message: "New Notifications"
+
+
+        );
+      } else {
+        // if (message.data['title'] == 'New message in Group') {
+        //   var currentpeer =
+        //       Provider.of<CurrentChatPeer>(this.context, listen: false);
+        //   if (currentpeer.groupChatId != message.data['groupid']) {
+        //     flutterLocalNotificationsPlugin..cancelAll();
+
+        //     showOverlayNotification((context) {
+        //       return Card(
+        //         margin: const EdgeInsets.symmetric(horizontal: 4),
+        //         child: SafeArea(
+        //           child: ListTile(
+        //             title: Text(
+        //               message.data['titleMultilang'],
+        //               maxLines: 1,
+        //               overflow: TextOverflow.ellipsis,
+        //             ),
+        //             subtitle: Text(
+        //               message.data['bodyMultilang'],
+        //               maxLines: 2,
+        //               overflow: TextOverflow.ellipsis,
+        //             ),
+        //             trailing: IconButton(
+        //                 icon: Icon(Icons.close),
+        //                 onPressed: () {
+        //                   OverlaySupportEntry.of(context)!.dismiss();
+        //                 }),
+        //           ),
+        //         ),
+        //       );
+        //     }, duration: Duration(milliseconds: 2000));
+        //   }
+        // } else
+
+        if (message.data['title'] == 'Call Ended') {
+          flutterLocalNotificationsPlugin.cancelAll();
+        } else {
+          if (message.data['title'] == 'Incoming Audio Call...' ||
+              message.data['title'] == 'Incoming Video Call...') {
+            final data = message.data;
+            final title = data['title'];
+            final body = data['body'];
+            final titleMultilang = data['titleMultilang'];
+            final bodyMultilang = data['bodyMultilang'];
+            await showNotificationWithDefaultSound(
+                title, body, titleMultilang, bodyMultilang);
+          } else if (message.data['title'] == 'You have new message(s)') {
+            var currentpeer =
+            Provider.of<CurrentChatProvider>(this.context, listen: false);
+            if (currentpeer.peerId != message.data['peerid']) {
+              // FlutterRingtonePlayer.playNotification();
+              showOverlayNotification((context) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  child: SafeArea(
+                    child: ListTile(
+                      title: Text(
+                        message.data['titleMultilang'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        message.data['bodyMultilang'],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            OverlaySupportEntry.of(context)!.dismiss();
+                          }),
+                    ),
+                  ),
+                );
+              }, duration: const Duration(milliseconds: 2000));
+            }
+          } else {
+            showOverlayNotification((context) {
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: SafeArea(
+                  child: ListTile(
+                    leading: Image.network(
+                      message.data['image'],
+                      width: 50,
+                      height: 70,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(
+                      message.data['titleMultilang'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      message.data['bodyMultilang'],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          OverlaySupportEntry.of(context)!.dismiss();
+                        }),
+                  ),
+                ),
+              );
+            }, duration: const Duration(milliseconds: 2000));
+          }
+        }
+      }
+    });
+    //ANDROID & iOS  onMessageOpenedApp callback
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      flutterLocalNotificationsPlugin.cancelAll();
+      Map<String, dynamic> notificationData = message.data;
+      AndroidNotification? android = message.notification?.android;
+      if (android != null) {
+        if (notificationData['title'] == 'Call Ended') {
+          flutterLocalNotificationsPlugin.cancelAll();
+        } else if (notificationData['title'] != 'Call Ended' &&
+            notificationData['title'] != 'You have new message(s)' &&
+            notificationData['title'] != 'Missed Call' &&
+            notificationData['title'] != 'Incoming Video Call...' &&
+            notificationData['title'] != 'Incoming Audio Call...' &&
+            notificationData['title'] != 'Incoming Call ended' &&
+            notificationData['title'] != 'New message in Group') {
+          flutterLocalNotificationsPlugin.cancelAll();
+
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => const AllNotifications()));
+        } else {
+          flutterLocalNotificationsPlugin.cancelAll();
+        }
+      }
+    });
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        flutterLocalNotificationsPlugin.cancelAll();
+        Map<String, dynamic>? notificationData = message.data;
+        if (notificationData['title'] != 'Call Ended' &&
+            notificationData['title'] != 'You have new message(s)' &&
+            notificationData['title'] != 'Missed Call' &&
+            notificationData['title'] != 'Incoming Video Call...' &&
+            notificationData['title'] != 'Incoming Audio Call...' &&
+            notificationData['title'] != 'Incoming Call ended' &&
+            notificationData['title'] != 'New message in Group') {
+          flutterLocalNotificationsPlugin.cancelAll();
+
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => const AllNotifications()));
+        }
+      }
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     bool isNotAllowEmulator = false;
-    bool isFetching = false;
     bool observer = false;
-    String accountStatus = "data";
-    String maintenanceMessage = "data";
-    int length = 2;
 
     return isNotAllowEmulator == true
         ? const CommonErrorScreen(

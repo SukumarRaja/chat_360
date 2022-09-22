@@ -9,3 +9,5 @@ enum LoginStatus {
 }
 
 enum AuthenticationType { passcode, biometric }
+
+enum MessageType { text, image, video, doc, location, contact, audio }

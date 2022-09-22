@@ -8,8 +8,16 @@ import '../../../config/app_config.dart';
 import '../../../config/database_keys.dart';
 import '../../../data/model/broadcast/broadcast.dart';
 import '../../../data/model/group/group.dart';
+import '../../../provider/available_contact.dart';
+import '../../../provider/broad_cast_chat.dart';
+import '../../../provider/call_history.dart';
 import '../../../provider/chat_provider.dart';
+import '../../../provider/current_chat.dart';
+import '../../../provider/download_info_provider.dart';
+import '../../../provider/group_chat.dart';
 import '../../../provider/observer.dart';
+import '../../../provider/seen.dart';
+import '../../../provider/status.dart';
 import '../../../provider/timer.dart';
 import '../../../provider/user.dart';
 import '../../../services/broadcast/broadcast.dart';
@@ -43,7 +51,7 @@ class _InitialPageState extends State<InitialPage> {
     FirebaseBroadcastServices();
     if (myLocale != null) {
       print("locale result $myLocale");
-      return MaterialApp(
+      return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: SplashScreen(),
       );
@@ -53,7 +61,7 @@ class _InitialPageState extends State<InitialPage> {
         builder: (context, snapShot) {
           print("snapshot error ${snapShot.hasError}");
           if (snapShot.hasError) {
-            return MaterialApp(
+            return const MaterialApp(
               debugShowCheckedModeBanner: false,
               home: SplashScreen(),
             );
@@ -69,24 +77,24 @@ class _InitialPageState extends State<InitialPage> {
                   print("true");
                   return MultiProvider(
                     providers: [
-                      // ChangeNotifierProvider(
-                      //     create: (_) => BroadCastChatProvider()),
-                      // ChangeNotifierProvider(create: (_) => StatusProvider()),
+                      ChangeNotifierProvider(
+                          create: (_) => BroadCastChatProvider()),
+                      ChangeNotifierProvider(create: (_) => StatusProvider()),
                       ChangeNotifierProvider(create: (_) => TimerProvider()),
-                      // ChangeNotifierProvider(
-                      //     create: (_) => GroupChatProvider()),
+                      ChangeNotifierProvider(
+                          create: (_) => GroupChatProvider()),
                       ChangeNotifierProvider(create: (_) => ChatProvider()),
                       ChangeNotifierProvider(create: (_) => UserProvider()),
                       ChangeNotifierProvider(create: (_) => ObserverProvider()),
-                      // ChangeNotifierProvider(
-                      //     create: (_) => CurrentChatProvider()),
-                      // ChangeNotifierProvider(
-                      //     create: (_) => CallHistoryProvider()),
-                      // ChangeNotifierProvider(
-                      //     create: (_) => DownloadInfoProvider()),
-                      // ChangeNotifierProvider(
-                      //     create: (_) => AvailableContactsProvider()),
-                      // Provider(create: (_) => const SeenProvider())
+                      ChangeNotifierProvider(
+                          create: (_) => CurrentChatProvider()),
+                      ChangeNotifierProvider(
+                          create: (_) => CallHistoryProvider()),
+                      ChangeNotifierProvider(
+                          create: (_) => DownloadInfoProvider()),
+                      ChangeNotifierProvider(
+                          create: (_) => AvailableContactsProvider()),
+                      Provider(create: (_) => const SeenProvider())
                     ],
                     child: StreamProvider<List<BroadcastModel>>(
                       initialData: [],
@@ -118,26 +126,25 @@ class _InitialPageState extends State<InitialPage> {
                           title: AppConfig.appName,
                           debugShowCheckedModeBanner: false,
 
-                          // home: HomePage(
-                          //   // prefs: snapshot.data!,
-                          //   // currentUserNo:
-                          //   // snapshot.data!.getString(DatabaseKeys.phone),
-                          //   // isSecuritySetupDone: snapshot.data!.getString(
-                          //   //     DatabaseKeys.isSecuritySetupDone) ==
-                          //   //     null
-                          //   //     ? false
-                          //   //     : ((snapshot.data!
-                          //   //     .getString(DatabaseKeys.phone) ==
-                          //   //     null)
-                          //   //     ? false
-                          //   //     : (snapshot.data!.getString(DatabaseKeys
-                          //   //     .isSecuritySetupDone) ==
-                          //   //     snapshot.data!
-                          //   //         .getString(DatabaseKeys.phone))
-                          //   //     ? true
-                          //   //     : false),
-                          // ),
-                          home: LoginPage(),
+                          home: HomePage(
+                            prefs: snapshot.data!,
+                            currentUserNo:
+                            snapshot.data!.getString(DatabaseKeys.phone),
+                            isSecuritySetupDone: snapshot.data!.getString(
+                                DatabaseKeys.isSecuritySetupDone) ==
+                                null
+                                ? false
+                                : ((snapshot.data!
+                                .getString(DatabaseKeys.phone) ==
+                                null)
+                                ? false
+                                : (snapshot.data!.getString(DatabaseKeys
+                                .isSecuritySetupDone) ==
+                                snapshot.data!
+                                    .getString(DatabaseKeys.phone))
+                                ? true
+                                : false),
+                          ),
                           locale: myLocale,
                           // supportedLocales: supportedLocale,
                           localizationsDelegates: [
@@ -174,13 +181,13 @@ class _InitialPageState extends State<InitialPage> {
                         primaryColorLight: AppColors.chattingGreen,
                         indicatorColor: AppColors.lightGreen),
                     debugShowCheckedModeBanner: false,
-                    home: SplashScreen(),
+                    home: const SplashScreen(),
                   ),
                 );
               },
             );
           }
-          return MaterialApp(
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: SplashScreen(),
           );

@@ -12,10 +12,10 @@ class DatabasePath {
   static const String userNotification = "usersnotifications";
   static const String history = "history";
   static const String usersCount = "userscount";
-  static const String chatData = "chatdata";
+  static const String chatData = "chatData";
   static const String collectionCall = "call";
-  static const String countryWiseData = "countrywisedata";
-  static const String callHistory = "callhistory";
+  static const String countryWiseData = "countryWiseData";
+  static const String callHistory = "callHistory";
   static const String collectionTempTokensForUnsubscribe = "tempUnsubscribeTokens";
   static const String groupChats = "groupChats";
 }

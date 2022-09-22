@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ntp/ntp.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../ui/themes/app_colors.dart';
 import '../ui/widgets/common_text.dart';
 
@@ -44,5 +48,33 @@ class FiberSettings {
         msg: message,
         backgroundColor: AppColors.chattingBlack.withOpacity(0.95),
         textColor: AppColors.chattingWhite);
+  }
+
+  static showRationaleToast(rationale) async {
+    toast(message: rationale);
+  }
+
+  static Future<bool> checkAndRequestPermission(Permission permission) {
+    Completer<bool> completer = Completer<bool>();
+    permission.request().then((status) {
+      if (status != PermissionStatus.granted) {
+        permission.request().then((status) {
+          bool granted = status == PermissionStatus.granted;
+          completer.complete(granted);
+        });
+      } else {
+        completer.complete(true);
+      }
+    });
+    return completer.future;
+  }
+  static internetLookUp() async {
+    try {
+      await InternetAddress.lookup('google.com').catchError((e) {
+        toast(message: "No Internet Connection ${e.toString()}");
+      });
+    } catch (e) {
+      toast(message: "No Internet Connection ${e.toString()}");
+    }
   }
 }

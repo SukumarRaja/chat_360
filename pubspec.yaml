@@ -53,6 +53,12 @@ dependencies:
   url_launcher: ^6.1.5
   flutter_secure_storage: ^6.0.0
   firebase_messaging: ^13.0.2
+  permission_handler: ^10.0.1
+  contacts_service: ^0.6.3
+  device_info: ^2.0.3
+  local_auth: ^2.1.2
+  receive_sharing_intent: ^1.4.5
+  flutter_local_notifications: ^11.0.0
 
 dev_dependencies:
   flutter_test:
